@@ -1,194 +1,36 @@
 const services = [
-  { id:"signature", name:"Signature Cut", category:"haircuts", duration:45, price:65, description:"A tailored consultation, precision cut, wash, and finished styling." },
-  { id:"fade", name:"Skin Fade", category:"haircuts", duration:50, price:70, description:"Seamless fade work with sharp detailing and a considered finish." },
-  { id:"scissor", name:"Scissor & Style", category:"haircuts", duration:60, price:85, description:"A complete scissor-led cut for natural movement and texture." },
-  { id:"beard", name:"Beard Sculpt", category:"beard", duration:30, price:40, description:"Shape, line, and balance the beard with hot towels and finish oil." },
-  { id:"shave", name:"Traditional Shave", category:"beard", duration:45, price:55, description:"Hot towel preparation, straight razor shave, and cooling balm." },
-  { id:"blade", name:"The Blade Experience", category:"packages", duration:90, price:115, description:"Signature cut, beard sculpt, hot towel treatment, and premium finish." }
+  {id:"signature",name:"Signature Cut",category:"haircuts",duration:45,price:65,description:"A tailored consultation, precision cut, wash, and finished styling."},
+  {id:"fade",name:"Skin Fade",category:"haircuts",duration:50,price:70,description:"Seamless fade work with sharp detailing and a considered finish."},
+  {id:"scissor",name:"Scissor & Style",category:"haircuts",duration:60,price:85,description:"A complete scissor-led cut for natural movement and texture."},
+  {id:"beard",name:"Beard Sculpt",category:"beard",duration:30,price:40,description:"Shape, line, and balance the beard with hot towels and finish oil."},
+  {id:"shave",name:"Traditional Shave",category:"beard",duration:45,price:55,description:"Hot towel preparation, straight razor shave, and cooling balm."},
+  {id:"blade",name:"The Blade Experience",category:"packages",duration:90,price:115,description:"Signature cut, beard sculpt, hot towel treatment, and premium finish."}
 ];
-
-const state = { step:1, services:new Set(), barber:"", date:"", time:"", confirmed:false };
-const $ = (selector, scope=document) => scope.querySelector(selector);
-const $$ = (selector, scope=document) => [...scope.querySelectorAll(selector)];
-
-function formatDuration(minutes) { return minutes >= 60 ? `${Math.floor(minutes/60)} hr${minutes%60 ? ` ${minutes%60} min` : ""}` : `${minutes} min`; }
-
-function renderServices(filter="all") {
-  const grid = $("#serviceGrid");
-  grid.innerHTML = services.map((service,index) => `
-    <article class="service-card reveal visible" data-category="${service.category}">
-      <div class="service-top"><span>0${index+1}</span><span>${formatDuration(service.duration)}</span></div>
-      <div><h3>${service.name}</h3><p>${service.description}</p></div>
-      <div class="service-bottom"><span class="service-price">$${service.price}</span><button class="add-service" data-service="${service.id}" aria-label="Book ${service.name}">+</button></div>
-    </article>`).join("");
-
-  $$(".service-card",grid).forEach(card => card.classList.toggle("hidden", filter !== "all" && card.dataset.category !== filter));
-  $$(".add-service",grid).forEach(button => button.addEventListener("click", () => openBooking(button.dataset.service)));
-}
-
-function renderBookingServices() {
-  $("#bookingServices").innerHTML = services.map(service => `
-    <button class="booking-option" data-choice="service" data-value="${service.id}">
-      <div><strong>${service.name}</strong><small>${formatDuration(service.duration)}</small></div><b>$${service.price}</b>
-    </button>`).join("");
-}
-
-function openBooking(preselectedService, barber) {
-  const backdrop = $("#bookingBackdrop");
-  state.confirmed = false;
-  if (preselectedService) state.services = new Set([preselectedService]);
-  if (barber) state.barber = barber;
-  goToStep(1);
-  syncChoices();
-  updateBookingSummary();
-  backdrop.classList.add("open");
-  backdrop.setAttribute("aria-hidden","false");
-  document.body.style.overflow="hidden";
-}
-
-function closeBooking() {
-  const backdrop = $("#bookingBackdrop");
-  backdrop.classList.remove("open");
-  backdrop.setAttribute("aria-hidden","true");
-  document.body.style.overflow="";
-}
-
-function syncChoices() {
-  $$("[data-choice='service']").forEach(button => button.classList.toggle("selected", state.services.has(button.dataset.value)));
-  $$("[data-choice='barber']").forEach(button => {
-    const selected = state.barber === button.dataset.value;
-    button.classList.toggle("selected", selected);
-    $("i",button).textContent = selected ? "●" : "○";
-  });
-  $$(".date-option").forEach(button => button.classList.toggle("selected", state.date === button.dataset.value));
-  $$(".time-option").forEach(button => button.classList.toggle("selected", state.time === button.dataset.value));
-}
-
-function updateBookingSummary() {
-  const selected = services.filter(service => state.services.has(service.id));
-  const minutes = selected.reduce((sum,service) => sum + service.duration,0);
-  const price = selected.reduce((sum,service) => sum + service.price,0);
-  $("#selectedSummary").text("Choose a service");
-  $("#selectedSummary").textContent = selected.length ? selected.map(service => service.name).join(" + ") : "Choose a service";
-  $("#bookingPrice").textContent = selected.length ? `$${price} · ${formatDuration(minutes)}` : "—";
-  validateStep();
-}
-
-function validateStep() {
-  const button = $("#nextStep");
-  let valid = false;
-  if (state.step === 1) valid = state.services.size > 0;
-  if (state.step === 2) valid = !!state.barber;
-  if (state.step === 3) valid = !!state.date && !!state.time;
-  if (state.step === 4) valid = false;
-  button.disabled = !valid;
-  if (state.step === 4) button.textContent = "Confirm booking";
-  else button.innerHTML = `Continue <span>→</span>`;
-}
-
-function goToStep(step) {
-  state.step = step;
-  $$(".booking-step").forEach(panel => panel.classList.toggle("active",Number(panel.dataset.step) === step));
-  $("#stepLabel").textContent = `${step} / 4`;
-  $("#progressBar").style.width = `${step*25}%`;
-  $("#backStep").hidden = step === 1;
-  $("#nextStep").hidden = state.confirmed;
-  validateStep();
-}
-
-function renderDates() {
-  const container = $("#dateOptions");
-  const today = new Date();
-  container.innerHTML = "";
-  for(let i=1;i<=5;i++) {
-    const date = new Date(today); date.setDate(today.getDate()+i);
-    if(date.getDay() === 0 && i < 5) continue;
-    const value = date.toISOString().split("T")[0];
-    const button = document.createElement("button");
-    button.className="date-option"; button.dataset.choice="date"; button.dataset.value=value;
-    button.innerHTML=`<small>${date.toLocaleDateString("en-US",{weekday:"short"})}</small><strong>${date.toLocaleDateString("en-US",{month:"short",day:"numeric"})}</strong>`;
-    container.appendChild(button);
-  }
-}
-
-function renderTimes() {
-  const times=["9:00 AM","9:45 AM","10:30 AM","11:15 AM","12:30 PM","1:15 PM","2:00 PM","3:30 PM","4:15 PM","5:00 PM","6:30 PM","7:15 PM"];
-  $("#timeOptions").innerHTML=times.map(time=>`<button class="time-option" data-choice="time" data-value="${time}">${time}</button>`).join("");
-}
-
-function confirmBooking() {
-  const form = $("#clientForm");
-  if(!form.checkValidity()) { form.reportValidity(); return; }
-  const data = new FormData(form);
-  const selected = services.filter(service => state.services.has(service.id));
-  const date = new Date(state.date+"T12:00:00").toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric"});
-  state.confirmed=true;
-  form.hidden=true;
-  $("#confirmationCard").hidden=false;
-  $("#confirmationSummary").textContent=`${selected.map(s=>s.name).join(" + ")} · ${date} at ${state.time} · ${state.barber || "First Available"}`;
-  $("#nextStep").hidden=true;
-  $("#bookingTitle").textContent=`Confirmed, ${data.get("name")?.split(" ")[0] || "friend"}`;
-}
-
-function addToCalendar() {
-  const selected = services.filter(service=>state.services.has(service.id));
-  const start = new Date(`${state.date}T${convertTime(state.time)}:00`);
-  const duration = selected.reduce((sum,s)=>sum+ s.duration,0);
-  const end = new Date(start.getTime()+duration*60000);
-  const stamp = date => date.toISOString().replace(/[-:]|\.\d{3}/g,"");
-  const text = encodeURIComponent(`ATELIER BLADE: ${selected.map(s=>s.name).join(" + ")}`);
-  const details = encodeURIComponent(`Barber: ${state.barber}\nATELIER BLADE, 128 Mercer Street, New York`);
-  const url=`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${text}&dates=${stamp(start)}/${stamp(end)}&details=${details}&location=${encodeURIComponent("128 Mercer Street, New York")}`;
-  window.open(url,"_blank","noopener");
-}
-
-function convertTime(time) {
-  const [clock,period]=time.split(" "); let [hours,minutes]=clock.split(":").map(Number);
-  if(period==="PM"&&hours!==12) hours+=12;
-  if(period==="AM"&&hours===12) hours=0;
-  return `${String(hours).padStart(2,"0")}:${String(minutes).padStart(2,"0")}`;
-}
-
-function updateOpenStatus() {
-  const now=new Date(); const day=now.getDay(); const hour=now.getHours()+now.getMinutes()/60;
-  const open=day>=1&&day<=5 ? hour>=9&&hour<20 : hour>=9&&hour<18;
-  const badge=$("#openStatus"); badge.innerHTML=`<span></span>${open?"Open now":"Closed"}`; badge.classList.toggle("closed",!open);
-}
-
-$$("[data-open-booking]").forEach(button => button.addEventListener("click",()=>openBooking(null,button.dataset.barber || "")));
-$("#closeBooking").addEventListener("click",closeBooking);
-$("#bookingBackdrop").addEventListener("click",event=>{ if(event.target.id==="bookingBackdrop") closeBooking(); });
-document.addEventListener("keydown",event=>{ if(event.key==="Escape") closeBooking(); });
-
-renderServices(); renderBookingServices(); renderDates(); renderTimes(); updateOpenStatus();
-$("#year").textContent=new Date().getFullYear();
-
-$$('.segment').forEach(button=>button.addEventListener("click",()=>{
-  $$('.segment').forEach(item=>{item.classList.remove("active");item.setAttribute("aria-selected","false")});
-  button.classList.add("active");button.setAttribute("aria-selected","true");renderServices(button.dataset.filter);
-}));
-
-document.addEventListener("click",event=>{
-  const choice=event.target.closest("[data-choice]");
-  if(!choice) return;
-  const {choice:kind,value}=choice.dataset;
-  if(kind==="service") state.services.has(value)?state.services.delete(value):state.services.add(value);
-  if(kind==="barber") state.barber=value;
-  if(kind==="date") {state.date=value;state.time=""}
-  if(kind==="time") state.time=value;
-  syncChoices(); updateBookingSummary();
-});
-
-$("#nextStep").addEventListener("click",()=>{ if(state.step===4) confirmBooking(); else goToStep(state.step+1); });
-$("#backStep").addEventListener("click",()=>goToStep(state.step-1));
-$("#addCalendar").addEvent("click",addToCalendar);
-
-const observer=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add("visible");observer.unobserve(entry.target)}}),{threshold:.12});
-$$('.reveal').forEach(element=>observer.observe(element));
-
-window.addEventListener("scroll",()=>{
-  const visual=$(".hero-visual");
-  if(!visual) return;
-  const image=$("img",visual); const offset=Math.min(window.scrollY*.08,35);
-  image.style.transform=`scale(1.03) translateY(${offset*.12}px)`;
-},{passive:true});
+const state={step:1,services:new Set(),barber:"",date:"",time:"",confirmed:false};
+const $=(selector,scope=document)=>scope.querySelector(selector);
+const $$=(selector,scope=document)=>[...scope.querySelectorAll(selector)];
+const fallbackImage="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 800'%3E%3Cdefs%3E%3ClinearGradient id='g' x2='1' y2='1'%3E%3Cstop stop-color='%23232327'/%3E%3Cstop offset='1' stop-color='%230a0a0c'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='1200' height='800' fill='url(%23g)'/%3E%3Cpath d='M0 620 1200 220v580H0' fill='%23161618'/%3E%3C/svg%3E";
+function protectImages(){ $$('img').forEach(image=>{if(image.dataset.fallbackBound)return;image.dataset.fallbackBound="true";image.onerror=()=>{image.onerror=null;image.src=fallbackImage;image.classList.add("image-fallback")};if(!image.hasAttribute("fetchpriority")){image.loading="lazy";image.decoding="async"}}); }
+function icon(name){const paths={clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',scissors:'<circle cx="6" cy="6" r="2.5"/><circle cx="6" cy="18" r="2.5"/><path d="m8 8 12 12M8 16l12-12M14 6l2-2"/>',razor:'<path d="M3 7h18l-2 5H5L3 7Z"/><path d="M7 12v8m10-8v8M5 20h14"/>',calendar:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/>'};return `<svg viewBox="0 0 24 24" aria-hidden="true">${paths[name]||paths.clock}</svg>`;}
+function formatDuration(minutes){return minutes>=60?`${Math.floor(minutes/60)} hr${minutes%60?` ${minutes%60} min`:""}`:`${minutes} min`}
+function renderServices(filter="all"){$("#serviceGrid").innerHTML=services.map((service,index)=>{const symbol=service.category==="beard"?"razor":service.category==="packages"?"scissors":"scissors";return `<article class="service-card reveal visible" data-category="${service.category}"><div class="service-top"><span>0${index+1}</span><span>${icon("clock")}${formatDuration(service.duration)}</span></div><div><h3>${service.name}</h3><p>${service.description}</p></div><div class="service-bottom"><span class="service-price">$${service.price}</span><button class="add-service" data-service="${service.id}" aria-label="Book ${service.name}">+</button></div></article>`}).join("");$$('.service-card',$('#serviceGrid')).forEach(card=>card.classList.toggle("hidden",filter!=="all"&&card.dataset.category!==filter));$$('.add-service',$('#serviceGrid')).forEach(button=>button.addEventListener("click",()=>openBooking(button.dataset.service)));protectImages();}
+function renderBookingServices(){$("#bookingServices").innerHTML=services.map(service=>`<button class="booking-option" data-choice="service" data-value="${service.id}"><div><strong>${service.name}</strong><small>${icon(service.category==="beard"?"razor":"scissors")}${formatDuration(service.duration)}</small></div><b>$${service.price}</b></button>`).join("")}
+function openBooking(preselectedService,barber){const backdrop=$("#bookingBackdrop");state.confirmed=false;state.services=preselectedService?new Set([preselectedService]):new Set();state.barber=barber||"";state.date="";state.time="";$("#clientForm").reset();$("#clientForm").hidden=false;$("#confirmationCard").hidden=true;$("#bookingTitle").textContent="Book your visit";goToStep(1);syncChoices();updateBookingSummary();backdrop.classList.add("open");backdrop.setAttribute("aria-hidden","false");document.body.style.overflow="hidden";$("#closeBooking").focus()}
+function closeBooking(){const backdrop=$("#bookingBackdrop");backdrop.classList.remove("open");backdrop.setAttribute("aria-hidden","true");document.body.style.overflow=""}
+function syncChoices(){$$("[data-choice='service']").forEach(button=>button.classList.toggle("selected",state.services.has(button.dataset.value)));$$("[data-choice='barber']").forEach(button=>{const selected=state.barber===button.dataset.value;button.classList.toggle("selected",selected);$("i",button).textContent=selected?"●":"○"});$$(".date-option").forEach(button=>button.classList.toggle("selected",state.date===button.dataset.value));$$(".time-option").forEach(button=>button.classList.toggle("selected",state.time===button.dataset.value))}
+function updateBookingSummary(){const selected=services.filter(service=>state.services.has(service.id));const minutes=selected.reduce((sum,service)=>sum+service.duration,0);const price=selected.reduce((sum,service)=>sum+service.price,0);$("#selectedSummary").textContent=selected.length?selected.map(service=>service.name).join(" + "):"Choose a service";$("#bookingPrice").textContent=selected.length?`$${price} · ${formatDuration(minutes)}`:"—";validateStep()}
+function validateStep(){const button=$("#nextStep");let valid=false;if(state.step===1)valid=state.services.size>0;if(state.step===2)valid=!!state.barber;if(state.step===3)valid=!!state.date&&!!state.time;if(state.step===4)valid=$("#clientForm").checkValidity();button.disabled=!valid;if(state.step===4)button.innerHTML="Confirm booking";else button.innerHTML='Continue <span aria-hidden="true">→</span>'}
+function goToStep(step){state.step=step;$$('.booking-step').forEach(panel=>panel.classList.toggle("active",Number(panel.dataset.step)===step));$("#stepLabel").textContent=`${step} / 4`;$("#progressBar").style.width=`${step*25}%`;$("#backStep").hidden=step===1;$("#nextStep").hidden=state.confirmed;validateStep()}
+function renderDates(){const container=$("#dateOptions"),today=new Date();container.innerHTML="";for(let i=1;i<=7;i++){const date=new Date(today);date.setDate(today.getDate()+i);if(date.getDay()===0)continue;const value=`${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,"0")}-${String(date.getDate()).padStart(2,"0")}`;const button=document.createElement("button");button.className="date-option";button.dataset.choice="date";button.dataset.value=value;button.innerHTML=`<small>${date.toLocaleDateString("en-US",{weekday:"short"})}</small><strong>${date.toLocaleDateString("en-US",{month:"short",day:"numeric"})}</strong>`;container.appendChild(button)}}
+function renderTimes(){const times=["9:00 AM","9:45 AM","10:30 AM","11:15 AM","12:30 PM","1:15 PM","2:00 PM","3:30 PM","4:15 PM","5:00 PM","6:30 PM","7:15 PM"];$("#timeOptions").innerHTML=times.map(time=>`<button class="time-option" data-choice="time" data-value="${time}">${time}</button>`).join("")}
+function confirmBooking(){const form=$("#clientForm");if(!form.reportValidity())return;const data=new FormData(form),selected=services.filter(service=>state.services.has(service.id)),date=new Date(`${state.date}T12:00:00`).toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric"});state.confirmed=true;form.hidden=true;$("#confirmationCard").hidden=false;$("#confirmationSummary").textContent=`${selected.map(s=>s.name).join(" + ")} · ${date} at ${state.time} · ${state.barber||"First Available"}`;$("#nextStep").hidden=true;$("#bookingTitle").textContent=`Confirmed, ${data.get("name")?.split(" ")[0]||"friend"}`}
+function convertTime(time){const [clock,period]=time.split(" ");let [hours,minutes]=clock.split(":").map(Number);if(period==="PM"&&hours!==12)hours+=12;if(period==="AM"&&hours===12)hours=0;return `${String(hours).padStart(2,"0")}:${String(minutes).padStart(2,"0")}`}
+function addToCalendar(){const selected=services.filter(service=>state.services.has(service.id));const start=new Date(`${state.date}T${convertTime(state.time)}:00`),duration=selected.reduce((sum,service)=>sum+service.duration,0),end=new Date(start.getTime()+duration*60000);const stamp=date=>date.toISOString().replace(/[-:]|\.\d{3}/g,"");const text=encodeURIComponent(`ATELIER BLADE: ${selected.map(service=>service.name).join(" + ")}`),details=encodeURIComponent(`Barber: ${state.barber}\nATELIER BLADE, 128 Mercer Street, New York`);window.open(`https://calendar.google.com/calendar/render?action=TEMPLATE&text=${text}&dates=${stamp(start)}/${stamp(end)}&details=${details}&location=${encodeURIComponent("128 Mercer Street, New York")}`,"_blank","noopener")}
+function updateOpenStatus(){const now=new Date(),day=now.getDay(),hour=now.getHours()+now.getMinutes()/60,open=day>=1&&day<=5?hour>=9&&hour<20:hour>=9&&hour<18,badge=$("#openStatus");badge.innerHTML=`<span></span>${open?"Open now":"Closed"}`;badge.classList.toggle("closed",!open)}
+$$('[data-open-booking]').forEach(button=>button.addEventListener("click",()=>openBooking(null,button.dataset.barber||"")));$("#closeBooking").addEventListener("click",closeBooking);$("#bookingBackdrop").addEventListener("click",event=>{if(event.target.id==="bookingBackdrop")closeBooking()});document.addEventListener("keydown",event=>{if(event.key==="Escape")closeBooking()});
+renderServices();renderBookingServices();renderDates();renderTimes();updateOpenStatus();protectImages();$("#year").textContent=new Date().getFullYear();
+$$('.segment').forEach(button=>button.addEventListener("click",()=>{$$('.segment').forEach(item=>{item.classList.remove("active");item.setAttribute("aria-selected","false")});button.classList.add("active");button.setAttribute("aria-selected","true");renderServices(button.dataset.filter)}));
+document.addEventListener("click",event=>{const choice=event.target.closest("[data-choice]");if(!choice)return;const {choice:kind,value}=choice.dataset;if(kind==="service")state.services.has(value)?state.services.delete(value):state.services.add(value);if(kind==="barber")state.barber=value;if(kind==="date"){state.date=value;state.time=""}if(kind==="time")state.time=value;syncChoices();updateBookingSummary()});
+$("#nextStep").addEventListener("click",()=>{if(state.step===4)confirmBooking();else goToStep(state.step+1)});$("#backStep").addEventListener("click",()=>goToStep(state.step-1));$("#addCalendar").addEventListener("click",addToCalendar);$("#clientForm").addEventListener("input",validateStep);
+if("IntersectionObserver" in window){const observer=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add("visible");observer.unobserve(entry.target)}}),{threshold:.12});$$('.reveal').forEach(element=>observer.observe(element))}else{$$('.reveal').forEach(element=>element.classList.add("visible"))}
+window.addEventListener("scroll",()=>{const visual=$(".hero-visual"),image=visual&&$("img",visual);if(image)image.style.transform=`scale(1.03) translateY(${Math.min(window.scrollY*.01,5)}px)`},{passive:true});
