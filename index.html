@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0a0a0c" />
+  <title>ATELIER BLADE — Precision Grooming</title>
+  <meta name="description" content="Modern precision grooming by ATELIER BLADE." />
+  <link rel="stylesheet" href="styles.css" />
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <div class="grain" aria-hidden="true"></div>
+
+  <nav class="nav glass" aria-label="Primary navigation">
+    <a class="brand" href="#top" aria-label="ATELIER BLADE home">
+      <span class="brand-mark">AB</span>
+      <span class="brand-name">ATELIER BLADE</span>
+    </a>
+    <div class="nav-links">
+      <a href="#services">Services</a>
+      <a href="#barbers">Barbers</a>
+      <a href="#lookbook">Lookbook</a>
+      <a href="#studio">Studio</a>
+    </div>
+    <button class="nav-book" data-open-booking>Book Now</button>
+  </nav>
+
+  <main id="top">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-copy reveal">
+        <p class="eyebrow">The modern grooming atelier</p>
+        <h1 id="hero-title">Precision Grooming.<br /><span>Redefined.</span></h1>
+        <p class="hero-description">Considered cuts. Masterful shaves. An experience built around you.</p>
+        <div class="hero-actions">
+          <button class="primary-btn" data-open-booking><span>Book appointment</span><span>↗</span></button>
+          <a class="secondary-btn" href="#services">Explore services <span>↓</span></a>
+        </div>
+      </div>
+
+      <div class="hero-visual reveal" aria-label="Barber shaping a client's hair">
+        <img src="https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&w=1800&q=85" alt="Barber at work in a premium studio" />
+        <div class="hero-shade"></div>
+        <div class="availability-card glass">
+          <span class="status-dot"></span>
+          <div><small>Next availability</small><strong>Today, 3:30 PM</strong></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section services" id="services" aria-labelledby="services-title">
+      <header class="section-heading reveal">
+        <div><p class="eyebrow">The menu</p><h2 id="services-title">Signature services</h2></div>
+        <p>Every service is tailored, unrushed, and finished with intent.</p>
+      </header>
+
+      <div class="segmented reveal" role="tablist" aria-label="Filter services">
+        <button class="segment active" role="tab" aria-selected="true" data-filter="all">All</button>
+        <button class="segment" role="tab" aria-selected="false" data-filter="haircuts">Haircuts</button>
+        <button class="segment" role="tab" aria-selected="false" data-filter="beard">Beard &amp; Shave</button>
+        <button class="segment" role="tab" aria-selected="false" data-filter="packages">Packages</button>
+      </div>
+
+      <div class="service-grid" id="serviceGrid"></div>
+    </section>
+
+    <section class="section" id="barbers" aria-labelledby="barbers-title">
+      <header class="section-heading reveal">
+        <div><p class="eyebrow">The artists</p><h2 id="barbers-title">Meet the masters</h2></div>
+        <p>Crafted by specialists. Made personal to you.</p>
+      </header>
+      <div class="barber-grid">
+        <article class="barber-card reveal">
+          <div class="portrait"><img src="https://images.unsplash.com/photo-1622296089863-eb7fc530daa8?auto=format&fit=crop&w=900&q=85" alt="Portrait of barber Theo" /><button data-open-booking data-barber="Theo Laurent">Book with Theo <span>↗</span></button></div>
+          <h3>Theo Laurent</h3><p>Skin fades · Scissor work</p>
+        </article>
+        <article class="barber-card reveal">
+          <div class="portrait"><img src="https://images.unsplash.com/photo-1617137968427-85924c800a22?auto=format&fit=crop&w=900&q=85" alt="Portrait of barber Marcus" /><button data-open-booking data-barber="Marcus Reed">Book with Marcus <span>↗</span></button></div>
+          <h3>Marcus Reed</h3><p>Classic cuts · Beard design</p>
+        </article>
+        <article class="barber-card reveal">
+          <div class="portrait"><img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=900&q=85" alt="Portrait of barber Alex" /><button data-open-booking data-barber="Alex Kim">Book with Alex <span>↗</span></button></div>
+          <h3>Alex Kim</h3><p>Textured styles · Hot towel shave</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section lookbook" id="lookbook" aria-labelledby="lookbook-title">
+      <header class="section-heading reveal"><div><p class="eyebrow">The lookbook</p><h2 id="lookbook-title">Recent work</h2></div></header>
+      <div class="lookbook-grid">
+        <figure class="reveal"><img src="https://images.unsplash.com/photo-1599351431202-1e0f0137899a?auto=format&fit=crop&w=1000&q=85" alt="Modern textured haircut" /></figure>
+        <figure class="reveal"><img src="https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&w=1000&q=85" alt="Classic barber haircut" /></figure>
+        <figure class="reveal"><img src="https://images.unsplash.com/photo-1593702295094-aea22597af65?auto=format&fit=crop&w=1000&q=85" alt="Beard grooming detail" /></figure>
+      </div>
+    </section>
+
+    <section class="section studio" id="studio" aria-labelledby="studio-title">
+      <div class="studio-info reveal">
+        <p class="eyebrow">The studio</p>
+        <h2 id="studio-title">Your chair is waiting.</h2>
+        <address>128 Mercer Street<br />New York, NY 10012</address>
+        <div class="studio-details">
+          <div><small>Hours</small><p>Mon–Fri&nbsp; 9:00–20:00<br />Sat–Sun&nbsp; 9:00–18:00</p></div>
+          <div><small>Status</small><p class="status-badge" id="openStatus"><span></span> Checking...</p></div>
+        </div>
+        <a class="secondary-btn dark" href="https://maps.google.com/?q=128+Mercer+Street+New+York" target="_blank" rel="noopener">Get directions <span>↗</span></a>
+      </div>
+      <div class="studio-image reveal"><img src="https://images.unsplash.com/photo-1585747860715-2ba37e788b70?auto=format&fit=crop&w=1400&q=85" alt="Interior of ATELIER BLADE studio" /></div>
+    </section>
+  </main>
+
+  <footer>
+    <a class="footer-brand" href="#top">ATELIER BLADE</a>
+    <div><a href="#">Instagram</a><a href="#">TikTok</a></div>
+    <p>© <span id="year"></span> ATELIER BLADE</p>
+  </footer>
+
+  <div class="mobile-nav glass" aria-label="Mobile navigation">
+    <a href="#services">Services</a><a href="#barbers">Barbers</a><button data-open-booking>Book</button>
+  </div>
+
+  <div class="booking-backdrop" id="bookingBackdrop" aria-hidden="true">
+    <section class="booking-sheet" role="dialog" aria-modal="true" aria-labelledby="bookingTitle">
+      <header class="sheet-header">
+        <button class="sheet-close" id="closeBooking" aria-label="Close booking">×</button>
+        <div><p class="eyebrow">Reservation</p><h2 id="bookingTitle">Book your visit</h2></div>
+        <span id="stepLabel">1 / 4</span>
+      </header>
+      <div class="step-progress"><span id="progressBar"></span></div>
+
+      <div class="booking-body">
+        <div class="booking-step active" data-step="1">
+          <h3>Select a service</h3>
+          <div id="bookingServices" class="booking-options"></div>
+          <div class="booking-total"><div><small>Total</small><strong id="selectedSummary">Choose a service</strong></div><strong id="bookingPrice">—</strong></div>
+        </div>
+
+        <div class="booking-step" data-step="2">
+          <h3>Choose your barber</h3>
+          <div class="barber-options">
+            <button class="choice" data-choice="barber" data-value="First Available"><span class="choice-icon">✦</span><span><strong>First Available</strong><small>Best match</small></span><i>○</i></button>
+            <button class="choice" data-choice="barber" data-value="Theo Laurent"><span class="choice-icon">TL</span><span><strong>Theo Laurent</strong><small>Skin fades · Scissor work</small></span><i>○</i></button>
+            <button class="choice" data-choice="barber" data-value="Marcus Reed"><span class="choice-icon">MR</span><span><strong>Marcus Reed</strong><small>Classic cuts · Beard design</small></span><i>○</i></button>
+            <button class="choice" data-choice="barber" data-value="Alex Kim"><span class="choice-icon">AK</span><span><strong>Alex Kim</strong><small>Textured styles · Shaves</small></span><i>○</i></button>
+          </div>
+        </div>
+
+        <div class="booking-step" data-step="3">
+          <h3>Choose date &amp; time</h3>
+          <div class="date-options" id="dateOptions"></div>
+          <p class="slot-label">Available times</p>
+          <div class="time-options" id="timeOptions"></div>
+        </div>
+
+        <div class="booking-step" data-step="4">
+          <h3>Your details</h3>
+          <form id="clientForm" class="client-form">
+            <label>Full name<input type="text" name="name" placeholder="Name" required /></label>
+            <label>Email<input type="email" name="email" placeholder="you@example.com" required /></label>
+            <label>Phone<input type="tel" name="phone" placeholder="(555) 000-0000" required /></label>
+          </form>
+          <div class="confirmation-card" id="confirmationCard" hidden>
+            <span class="confirm-mark">✓</span>
+            <h3>You’re on the books.</h3>
+            <p id="confirmationSummary"></p>
+            <button class="secondary-btn" id="addCalendar">Add to calendar <span>＋</span></button>
+          </div>
+        </div>
+      </div>
+
+      <footer class="sheet-footer">
+        <button class="back-btn" id="backStep" hidden>Back</button>
+        <button class="primary-btn continue-btn" id="nextStep" disabled>Continue <span>→</span></button>
+      </footer>
+    </section>
+  </div>
+</body>
+</html>
